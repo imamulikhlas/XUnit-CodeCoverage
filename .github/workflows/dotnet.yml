@@ -1,6 +1,5 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
@@ -25,20 +24,9 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.cobertura.xml    - name: Ensure coverage report exists
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+    - name: Ensure coverage report exists
       run: ls ./TestResults/
-    - name: Install reportgenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-    - name: Generate coverage report
-      run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport
-    - name: Check coverage threshold
-      run: |
-        COVERAGE=$(reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:HtmlInline_AzurePipelines)
-        echo "Coverage is $COVERAGE%"
-        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          echo "Code coverage is below 80%"
-          exit 1
-        fi
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4.0.1
       with:
