@@ -36,10 +36,10 @@ namespace UnitTestCaseDemo.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Employee emp)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
             var newEmp = _service.Add(emp);
             return CreatedAtAction("Get", newEmp);
