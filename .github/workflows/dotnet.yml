@@ -30,15 +30,12 @@ jobs:
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
     - name: Generate coverage report
       run: reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport
-    - name: Check controller coverage threshold
+    - name: Check coverage threshold
       run: |
-        # Generate the report and filter for the Controllers namespace
-        reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:HtmlInline_AzurePipelines -classfilters:+*Controller*
-        # Extract the coverage percentage for the Controllers namespace
-        COVERAGE=$(grep -oP '(?<=class="[^"]*Controller[^"]*">)[0-9]+\.[0-9]+' ./TestResults/CoverageReport/index.htm | awk '{sum += $1; count++} END {if (count > 0) print sum / count}')
-        echo "Controller Coverage is $COVERAGE%"
-        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          echo "Controller code coverage is below 80%"
+        COVERAGE=$(reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:HtmlInline_AzurePipelines)
+        echo "Coverage is $COVERAGE"
+        if [ $(echo "$COVERAGE < 80" | bc) -eq 1 ]; then
+          echo "Code coverage is below 80%"
           exit 1
         fi
     - name: Upload coverage reports to Codecov
@@ -47,3 +44,4 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./TestResults/**/coverage.cobertura.xml
         verbose: true
+
