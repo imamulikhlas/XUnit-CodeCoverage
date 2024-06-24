@@ -25,9 +25,22 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
-    - name: Ensure coverage report exists
-      run: ls ./TestResults/
+      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.cobertura.xml
+    - name: Install reportgenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    - name: Generate coverage report
+      run: reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport
+    - name: Check controller coverage threshold
+      run: |
+        # Generate the report and filter for the Controllers namespace
+        reportgenerator -reports:./TestResults/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:HtmlInline_AzurePipelines -classfilters:+*Controller*
+        # Extract the coverage percentage for the Controllers namespace
+        COVERAGE=$(grep -oP '(?<=class="[^"]*Controller[^"]*">)[0-9]+\.[0-9]+' ./TestResults/CoverageReport/index.htm | awk '{sum += $1; count++} END {if (count > 0) print sum / count}')
+        echo "Controller Coverage is $COVERAGE%"
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "Controller code coverage is below 80%"
+          exit 1
+        fi
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4.0.1
       with:
