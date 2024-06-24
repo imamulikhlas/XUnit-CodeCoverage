@@ -45,20 +45,6 @@ namespace UnitTestCaseDemo.Controllers
             return CreatedAtAction("Get", newEmp);
         }
 
-        [HttpPost]
-        public ActionResult PostXX([FromBody] Employee emp)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var newEmp = _service.Add(emp);
-            return CreatedAtAction("Get", newEmp);
-        }
-
-        
-
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
