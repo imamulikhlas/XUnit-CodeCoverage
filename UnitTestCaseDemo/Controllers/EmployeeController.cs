@@ -80,6 +80,72 @@ namespace UnitTestCaseDemo.Controllers
             return CreatedAtAction("Get", newEmp);
         }
 
+        public ActionResult Post1([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
+        public ActionResult Post2([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
+        public ActionResult Post3([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
+        public ActionResult Post4([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
+        public ActionResult Post5([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
+        public ActionResult Post6([FromBody] Employee emp)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newEmp = _service.Add(emp);
+            return CreatedAtAction("Get", newEmp);
+        }
+
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
