@@ -1,36 +1,37 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-name: .NET
+name: .NET Code Coverage
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v2
+
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '8.0.x'
+
     - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
-    - name: Ensure coverage report exists
-      run: ls ./TestResults/
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.0.1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/**/coverage.cobertura.xml
-        verbose: true
+      run: dotnet restore UnitTestDemo.sln
+
+    - name: Run tests and collect coverage
+      run: |
+        dotnet test UnitTestDemo.sln --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Threshold=80 /p:ThresholdType=line /p:ThresholdStat=total /p:Exclude="[xunit.*]*"
+
+    - name: Check coverage percentage
+      run: |
+        coverage=$(grep 'Line coverage' TestFolder/TestResults/coverage.cobertura.xml | sed -n 's/.*line-rate="//;s/".*//p')
+        echo "Code coverage is $coverage%"
+        if (( $(echo "$coverage < 80" | bc -l) )); then
+          echo "Code coverage is below 80%"
+          exit 1
+        fi
+
+    - name: Build solution
+      run: dotnet build YourSolution.sln --no-restore --configuration Release
 
